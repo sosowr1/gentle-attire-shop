@@ -19,8 +19,7 @@ function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
           <li key={l.label}>
             <Link
               to={l.to}
-              // @ts-expect-error - narrowed at call site
-              search={l.search}
+              search={l.search as never}
               hash={l.hash}
               className="hover:text-foreground transition-colors"
             >
