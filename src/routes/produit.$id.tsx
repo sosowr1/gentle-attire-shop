@@ -4,6 +4,20 @@ import { ArrowLeft, Truck, RotateCcw, ShieldCheck } from "lucide-react";
 import { getProduct, products, type Product } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 import { ProductCard } from "@/components/product-card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/produit/$id")({
   loader: ({ params }): { product: Product } => {
@@ -26,11 +40,19 @@ export const Route = createFileRoute("/produit/$id")({
 
 function ProductPage() {
   const { product } = Route.useLoaderData() as { product: Product };
-  const { addItem } = useCart();
+  const { addItem, openCart } = useCart();
   const [size, setSize] = useState(product.sizes[0]);
   const [color, setColor] = useState(product.colors[0].name);
 
   const related = products.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 4);
+
+  function handleAdd() {
+    addItem({ productId: product.id, size, color, quantity: 1 });
+    openCart();
+    toast.success(`${product.name} ajoutée au panier`, {
+      description: `Taille ${size} · ${color}`,
+    });
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
@@ -84,7 +106,7 @@ function ProductPage() {
           <div className="mt-8">
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium uppercase tracking-[0.25em] text-foreground/70">Taille</p>
-              <button className="text-xs text-muted-foreground underline underline-offset-4">Guide des tailles</button>
+              <SizeGuideDialog />
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {product.sizes.map((s) => (
@@ -100,19 +122,39 @@ function ProductPage() {
           </div>
 
           <button
-            onClick={() => addItem({ productId: product.id, size, color, quantity: 1 })}
+            onClick={handleAdd}
             className="mt-10 w-full rounded-full bg-foreground py-5 text-xs font-medium uppercase tracking-widest text-background transition hover:opacity-90"
           >
             Ajouter au panier · {product.price}€
           </button>
 
-          <div className="mt-8 space-y-4 border-t border-border/60 pt-8 text-sm">
-            <p><span className="font-medium text-foreground">Matière — </span><span className="text-muted-foreground">{product.fabric}</span></p>
-          </div>
+          <Accordion type="single" collapsible className="mt-8 border-t border-border/60">
+            <AccordionItem value="details" className="border-border/60">
+              <AccordionTrigger className="text-sm font-medium uppercase tracking-[0.2em] hover:no-underline">
+                Détails & Entretien
+              </AccordionTrigger>
+              <AccordionContent className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+                <p><span className="font-medium text-foreground">Composition :</span> {product.fabric}</p>
+                <p><span className="font-medium text-foreground">Entretien :</span> Lavage à la main à l'eau froide conseillé. Séchage à plat, à l'abri de la lumière directe.</p>
+                <p><span className="font-medium text-foreground">Repassage :</span> Fer à basse température sur l'envers du tissu. Éviter la vapeur directe sur les broderies.</p>
+                <p><span className="font-medium text-foreground">Origine :</span> Confectionnée en petites séries entre Paris et Dubaï.</p>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="livraison" className="border-border/60">
+              <AccordionTrigger className="text-sm font-medium uppercase tracking-[0.2em] hover:no-underline">
+                Livraison & Retours
+              </AccordionTrigger>
+              <AccordionContent className="space-y-2 text-sm text-muted-foreground">
+                <p>Livraison standard 3-5 jours ouvrés (offerte dès 120€).</p>
+                <p>Livraison express 24-48h.</p>
+                <p>Retours acceptés sous 14 jours.</p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
           <ul className="mt-8 grid grid-cols-3 gap-4 border-t border-border/60 pt-8 text-center text-[11px] uppercase tracking-widest text-muted-foreground">
             <li className="flex flex-col items-center gap-2"><Truck className="h-4 w-4" />Livraison offerte 120€+</li>
-            <li className="flex flex-col items-center gap-2"><RotateCcw className="h-4 w-4" />Retours 30 jours</li>
+            <li className="flex flex-col items-center gap-2"><RotateCcw className="h-4 w-4" />Retours 14 jours</li>
             <li className="flex flex-col items-center gap-2"><ShieldCheck className="h-4 w-4" />Paiement sécurisé</li>
           </ul>
         </div>
@@ -129,5 +171,56 @@ function ProductPage() {
         </section>
       )}
     </div>
+  );
+}
+
+function SizeGuideDialog() {
+  const rows = [
+    { size: "S", bust: "82-86", waist: "62-66", hips: "88-92" },
+    { size: "M", bust: "86-90", waist: "66-70", hips: "92-96" },
+    { size: "L", bust: "90-96", waist: "70-76", hips: "96-102" },
+    { size: "XL", bust: "96-102", waist: "76-82", hips: "102-108" },
+  ];
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground">
+          Guide des tailles
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="font-serif text-2xl">Guide des tailles</DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">
+          Mesures en centimètres. Prenez vos mesures directement sur votre peau, sans serrer.
+        </p>
+        <div className="mt-4 overflow-hidden rounded-lg border border-border/60">
+          <table className="w-full text-sm">
+            <thead className="bg-secondary/70 text-xs uppercase tracking-widest text-foreground/70">
+              <tr>
+                <th className="px-4 py-3 text-left">Taille</th>
+                <th className="px-4 py-3 text-left">Poitrine</th>
+                <th className="px-4 py-3 text-left">Taille</th>
+                <th className="px-4 py-3 text-left">Hanches</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/60">
+              {rows.map((r) => (
+                <tr key={r.size}>
+                  <td className="px-4 py-3 font-medium">{r.size}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.bust}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.waist}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.hips}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Un doute ? Écrivez-nous à contact@sayyina.com — nous vous conseillons personnellement.
+        </p>
+      </DialogContent>
+    </Dialog>
   );
 }
