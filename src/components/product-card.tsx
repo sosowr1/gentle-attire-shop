@@ -36,6 +36,9 @@ export function ProductCard({ product }: { product: Product }) {
       quantity: 1,
     });
     openCart();
+    toast.success(`${product.name} ajoutée au panier`, {
+      description: `Taille ${product.sizes[0]} · ${product.colors[0].name}`,
+    });
   }
 
   return (
