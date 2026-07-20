@@ -1,15 +1,30 @@
 import { Link } from "@tanstack/react-router";
 import { ShoppingBag, Search, Menu, User } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth-hook";
 
 export function SiteHeader() {
   const { count, openCart } = useCart();
   const { user } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-10">
+    <header
+      className={`sticky top-0 z-40 transition-all duration-300 ${
+        scrolled
+          ? "border-b border-border/70 bg-background/80 backdrop-blur-xl shadow-[0_1px_20px_-12px_rgba(60,50,40,0.25)]"
+          : "border-b border-transparent bg-background/60 backdrop-blur-md"
+      }`}
+    >
+      <div className={`mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 transition-all duration-300 sm:px-6 lg:px-10 ${scrolled ? "h-14" : "h-20"}`}>
         <button className="lg:hidden text-foreground/80" aria-label="Menu">
           <Menu className="h-5 w-5" />
         </button>
@@ -21,8 +36,12 @@ export function SiteHeader() {
           <Link to="/boutique" search={{ cat: "Ensembles" as const }} className="hover:text-foreground transition-colors">Ensembles</Link>
         </nav>
 
-        <Link to="/" className="font-serif text-2xl tracking-widest text-foreground">
-          NOORA
+        <Link
+          to="/"
+          aria-label="Sayyina — Accueil"
+          className="font-serif italic text-3xl tracking-[0.15em] text-foreground"
+        >
+          Sayyina
         </Link>
 
         <div className="flex items-center gap-4 text-foreground/80">

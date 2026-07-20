@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as BoutiqueRouteImport } from './routes/boutique'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -32,6 +33,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BoutiqueRoute = BoutiqueRouteImport.update({
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/boutique': typeof BoutiqueRoute
+  '/checkout': typeof CheckoutRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/boutique': typeof BoutiqueRoute
+  '/checkout': typeof CheckoutRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/boutique': typeof BoutiqueRoute
+  '/checkout': typeof CheckoutRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/boutique'
+    | '/checkout'
     | '/mcp'
     | '/reset-password'
     | '/.mcp/list-tools'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/boutique'
+    | '/checkout'
     | '/mcp'
     | '/reset-password'
     | '/.mcp/list-tools'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/boutique'
+    | '/checkout'
     | '/mcp'
     | '/reset-password'
     | '/.mcp/list-tools'
@@ -198,6 +210,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   BoutiqueRoute: typeof BoutiqueRoute
+  CheckoutRoute: typeof CheckoutRoute
   McpRoute: typeof McpRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
@@ -221,6 +234,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/boutique': {
@@ -330,6 +350,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   BoutiqueRoute: BoutiqueRoute,
+  CheckoutRoute: CheckoutRoute,
   McpRoute: McpRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
