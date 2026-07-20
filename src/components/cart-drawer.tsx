@@ -1,9 +1,50 @@
 import { X, Minus, Plus } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useCart, findProduct } from "@/lib/cart";
+import { useServerFn } from "@tanstack/react-start";
+import { placeOrder } from "@/lib/account.functions";
+import { toast } from "sonner";
+import { useState } from "react";
 
 export function CartDrawer() {
-  const { isOpen, closeCart, items, subtotal, updateQty, removeItem } = useCart();
+  const { isOpen, closeCart, items, subtotal, updateQty, removeItem, isAuthenticated, clear } = useCart();
+  const navigate = useNavigate();
+  const submitOrder = useServerFn(placeOrder);
+  const [busy, setBusy] = useState(false);
+
+  async function checkout() {
+    if (!isAuthenticated) {
+      closeCart();
+      navigate({ to: "/auth", search: { next: "/" } });
+      return;
+    }
+    setBusy(true);
+    try {
+      const orderItems = items
+        .map((i) => {
+          const p = findProduct(i.productId);
+          if (!p) return null;
+          return {
+            product_id: p.id,
+            product_name: p.name,
+            size: i.size,
+            color: i.color,
+            quantity: i.quantity,
+            unit_price: p.price,
+          };
+        })
+        .filter(Boolean) as Array<{ product_id: string; product_name: string; size: string; color: string; quantity: number; unit_price: number }>;
+      await submitOrder({ data: { items: orderItems } });
+      toast.success("Commande enregistrée !");
+      clear();
+      closeCart();
+      navigate({ to: "/_authenticated/commandes" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur commande");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <>
@@ -105,8 +146,12 @@ export function CartDrawer() {
               <span className="font-serif text-2xl">{subtotal.toFixed(0)}€</span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">Livraison offerte dès 120€.</p>
-            <button className="mt-5 w-full rounded-full bg-foreground py-4 text-xs font-medium uppercase tracking-widest text-background transition hover:opacity-90">
-              Passer commande
+            <button
+              onClick={checkout}
+              disabled={busy}
+              className="mt-5 w-full rounded-full bg-foreground py-4 text-xs font-medium uppercase tracking-widest text-background transition hover:opacity-90 disabled:opacity-60"
+            >
+              {busy ? "…" : isAuthenticated ? "Passer commande" : "Se connecter pour commander"}
             </button>
           </div>
         )}
