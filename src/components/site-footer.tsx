@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 type FooterLink = {
   label: string;
-  to: "/boutique" | "/" | "/auth";
+  to: "/boutique" | "/" | "/auth" | "/livraison-retours" | "/faq" | "/cgv" | "/mentions-legales";
   search?: { cat: "Abayas" | "Hijabs" | "Ensembles" | "Accessoires" };
   hash?: string;
 };
@@ -89,26 +89,21 @@ export function SiteFooter() {
             { label: "Nouveautés", to: "/boutique" },
           ]}
         />
-        <div className="md:col-span-2">
-          <p className="text-xs font-medium uppercase tracking-widest text-foreground/70">Aide</p>
-          <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
-            {[
-              "Livraison & Retours",
-              "Guide des tailles",
-              "FAQ",
-              "Contact",
-            ].map((label) => (
-              <li key={label}>
-                <a href="#" className="hover:text-foreground transition-colors">{label}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <FooterCol
+          title="Aide"
+          links={[
+            { label: "Livraison & Retours", to: "/livraison-retours" },
+            { label: "FAQ", to: "/faq" },
+            { label: "Contact", to: "/faq" },
+          ]}
+        />
         <FooterCol
           title="Maison"
           links={[
             { label: "Nos valeurs", to: "/", hash: "valeurs" },
             { label: "Mon compte", to: "/auth" },
+            { label: "CGV", to: "/cgv" },
+            { label: "Mentions légales", to: "/mentions-legales" },
           ]}
         />
 

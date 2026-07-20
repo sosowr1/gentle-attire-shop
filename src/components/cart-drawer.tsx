@@ -2,6 +2,8 @@ import { X, Minus, Plus, Truck } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useCart, findProduct } from "@/lib/cart";
 
+const FREE_SHIPPING_THRESHOLD = 120;
+
 export function CartDrawer() {
   const { isOpen, closeCart, items, subtotal, updateQty, removeItem } = useCart();
   const navigate = useNavigate();
@@ -10,6 +12,9 @@ export function CartDrawer() {
     closeCart();
     navigate({ to: "/checkout" });
   }
+
+  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
   return (
     <>
@@ -104,13 +109,30 @@ export function CartDrawer() {
 
         {items.length > 0 && (
           <div className="border-t border-border/60 px-6 py-5">
+            <div className="mb-5">
+              {remaining > 0 ? (
+                <p className="text-xs text-foreground/80">
+                  Plus que <span className="font-medium">{remaining.toFixed(0)}€</span> pour bénéficier de la livraison offerte
+                </p>
+              ) : (
+                <p className="flex items-center gap-2 text-xs font-medium text-primary">
+                  <Truck className="h-3.5 w-3.5" /> Livraison offerte débloquée
+                </p>
+              )}
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
             <div className="flex items-baseline justify-between">
               <span className="text-sm uppercase tracking-widest text-muted-foreground">
                 Sous-total
               </span>
               <span className="font-serif text-2xl">{subtotal.toFixed(0)}€</span>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">Livraison offerte dès 120€ d'achat.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Livraison offerte dès {FREE_SHIPPING_THRESHOLD}€ d'achat.</p>
             <button
               onClick={goToCheckout}
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 text-xs font-medium uppercase tracking-widest text-primary-foreground transition hover:bg-[color:var(--taupe-hover)]"

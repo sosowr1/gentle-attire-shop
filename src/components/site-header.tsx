@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Search, Menu, User } from "lucide-react";
+import { ShoppingBag, Search, Menu, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth-hook";
@@ -8,6 +8,7 @@ export function SiteHeader() {
   const { count, openCart } = useCart();
   const { user } = useAuth();
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -16,7 +17,21 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
+  const navLinks = [
+    { to: "/boutique", label: "Boutique", search: undefined },
+    { to: "/boutique", label: "Abayas", search: { cat: "Abayas" as const } },
+    { to: "/boutique", label: "Hijabs", search: { cat: "Hijabs" as const } },
+    { to: "/boutique", label: "Ensembles", search: { cat: "Ensembles" as const } },
+    { to: "/boutique", label: "Accessoires", search: { cat: "Accessoires" as const } },
+  ] as const;
+
   return (
+    <>
     <header
       className={`sticky top-0 z-40 transition-all duration-300 ${
         scrolled
@@ -25,7 +40,11 @@ export function SiteHeader() {
       }`}
     >
       <div className={`mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 transition-all duration-300 sm:px-6 lg:px-10 ${scrolled ? "h-14" : "h-20"}`}>
-        <button className="lg:hidden text-foreground/80" aria-label="Menu">
+        <button
+          className="lg:hidden text-foreground/80"
+          aria-label="Ouvrir le menu"
+          onClick={() => setMobileOpen(true)}
+        >
           <Menu className="h-5 w-5" />
         </button>
 
@@ -80,5 +99,63 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
+
+      {/* Mobile burger drawer */}
+      <div
+        onClick={() => setMobileOpen(false)}
+        className={`fixed inset-0 z-50 bg-foreground/30 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+          mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      />
+      <aside
+        className={`fixed left-0 top-0 z-50 flex h-full w-[85%] max-w-sm flex-col bg-background shadow-2xl transition-transform duration-300 lg:hidden ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        aria-hidden={!mobileOpen}
+      >
+        <div className="flex items-center justify-between border-b border-border/60 px-6 py-5">
+          <Link
+            to="/"
+            onClick={() => setMobileOpen(false)}
+            className="font-serif italic text-2xl tracking-[0.15em] text-foreground"
+          >
+            Sayyina
+          </Link>
+          <button onClick={() => setMobileOpen(false)} aria-label="Fermer">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <nav className="flex-1 overflow-y-auto px-6 py-8">
+          <ul className="space-y-1">
+            {navLinks.map((l) => (
+              <li key={l.label}>
+                <Link
+                  to={l.to}
+                  search={l.search as never}
+                  onClick={() => setMobileOpen(false)}
+                  className="block rounded-md px-3 py-3 font-serif text-2xl text-foreground/85 hover:bg-secondary hover:text-foreground"
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-10 border-t border-border/60 pt-6">
+            <p className="mb-3 text-xs font-medium uppercase tracking-widest text-foreground/60">Aide</p>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li><Link to="/livraison-retours" onClick={() => setMobileOpen(false)} className="block py-2 hover:text-foreground">Livraison & Retours</Link></li>
+              <li><Link to="/faq" onClick={() => setMobileOpen(false)} className="block py-2 hover:text-foreground">FAQ</Link></li>
+              <li>
+                {user ? (
+                  <Link to="/_authenticated/compte" onClick={() => setMobileOpen(false)} className="block py-2 hover:text-foreground">Mon compte</Link>
+                ) : (
+                  <Link to="/auth" onClick={() => setMobileOpen(false)} className="block py-2 hover:text-foreground">Connexion</Link>
+                )}
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+    </>
   );
 }
