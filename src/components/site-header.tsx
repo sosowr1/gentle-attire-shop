@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Search, Menu } from "lucide-react";
+import { ShoppingBag, Search, Menu, User } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth-hook";
 
 export function SiteHeader() {
   const { count, openCart } = useCart();
+  const { user } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
@@ -27,6 +29,23 @@ export function SiteHeader() {
           <button aria-label="Rechercher" className="hidden sm:inline-flex hover:text-foreground">
             <Search className="h-5 w-5" />
           </button>
+          {user ? (
+            <Link
+              to="/_authenticated/compte"
+              aria-label="Mon compte"
+              className="hover:text-foreground"
+            >
+              <User className="h-5 w-5" />
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              aria-label="Se connecter"
+              className="text-xs uppercase tracking-widest hover:text-foreground"
+            >
+              Connexion
+            </Link>
+          )}
           <button
             onClick={openCart}
             aria-label="Ouvrir le panier"
