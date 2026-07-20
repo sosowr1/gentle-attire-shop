@@ -3,6 +3,36 @@ import { Link } from "@tanstack/react-router";
 import { Instagram, Mail } from "lucide-react";
 import { toast } from "sonner";
 
+type FooterLink = {
+  label: string;
+  to: "/boutique" | "/" | "/auth";
+  search?: { cat: "Abayas" | "Hijabs" | "Ensembles" | "Accessoires" };
+  hash?: string;
+};
+
+function FooterCol({ title, links }: { title: string; links: FooterLink[] }) {
+  return (
+    <div className="md:col-span-2">
+      <p className="text-xs font-medium uppercase tracking-widest text-foreground/70">{title}</p>
+      <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
+        {links.map((l) => (
+          <li key={l.label}>
+            <Link
+              to={l.to}
+              // @ts-expect-error - narrowed at call site
+              search={l.search}
+              hash={l.hash}
+              className="hover:text-foreground transition-colors"
+            >
+              {l.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function SiteFooter() {
   const [email, setEmail] = useState("");
 
@@ -51,47 +81,37 @@ export function SiteFooter() {
           </form>
         </div>
 
-        {[
-          {
-            title: "Boutique",
-            links: [
-              { label: "Toute la collection", to: "/boutique" as const },
-              { label: "Abayas", to: "/boutique" as const },
-              { label: "Hijabs", to: "/boutique" as const },
-              { label: "Nouveautés", to: "/boutique" as const },
-            ],
-          },
-          {
-            title: "Aide",
-            links: [
-              { label: "Livraison & Retours", to: "/aide/livraison" as const },
-              { label: "Guide des tailles", to: "/aide/tailles" as const },
-              { label: "FAQ", to: "/aide/faq" as const },
-              { label: "Contact", to: "/aide/contact" as const },
-            ],
-          },
-          {
-            title: "Maison",
-            links: [
-              { label: "Nos valeurs", to: "/" as const },
-              { label: "Journal", to: "/" as const },
-              { label: "Mon compte", to: "/auth" as const },
-            ],
-          },
-        ].map((col) => (
-          <div key={col.title} className="md:col-span-2">
-            <p className="text-xs font-medium uppercase tracking-widest text-foreground/70">{col.title}</p>
-            <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
-              {col.links.map((l) => (
-                <li key={l.label}>
-                  <Link to={l.to} className="hover:text-foreground transition-colors">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <FooterCol
+          title="Boutique"
+          links={[
+            { label: "Toute la collection", to: "/boutique" },
+            { label: "Abayas", to: "/boutique", search: { cat: "Abayas" as const } },
+            { label: "Hijabs", to: "/boutique", search: { cat: "Hijabs" as const } },
+            { label: "Nouveautés", to: "/boutique" },
+          ]}
+        />
+        <div className="md:col-span-2">
+          <p className="text-xs font-medium uppercase tracking-widest text-foreground/70">Aide</p>
+          <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
+            {[
+              "Livraison & Retours",
+              "Guide des tailles",
+              "FAQ",
+              "Contact",
+            ].map((label) => (
+              <li key={label}>
+                <a href="#" className="hover:text-foreground transition-colors">{label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <FooterCol
+          title="Maison"
+          links={[
+            { label: "Nos valeurs", to: "/", hash: "valeurs" },
+            { label: "Mon compte", to: "/auth" },
+          ]}
+        />
 
         <div className="md:col-span-1 md:justify-self-end">
           <p className="text-xs font-medium uppercase tracking-widest text-foreground/70">Suivre</p>
